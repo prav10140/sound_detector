@@ -33,7 +33,12 @@ function AlertSettings() {
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label>
-            <input type="checkbox" name="enabled" checked={settings.enabled} onChange={handleChange} />
+            <input 
+              type="checkbox" 
+              name="enabled" 
+              checked={settings.enabled} 
+              onChange={handleChange} 
+            />
             Enable Alerts
           </label>
           <p className="form-help">Receive alerts when sound levels exceed threshold</p>
@@ -42,19 +47,17 @@ function AlertSettings() {
         <div className="form-group">
           <label htmlFor="threshold">Sound Threshold (dB): {settings.threshold}</label>
           <input
-  type="range"
-  id="threshold"
-  name="threshold"
-  min="40"
-  max="120"
-  value={settings.threshold}
-  onChange={handleChange}
-  onMouseUp={(e) => e.currentTarget.releasePointerCapture?.(e.pointerId)}
-  onTouchEnd={(e) => e.currentTarget.releasePointerCapture?.(e.pointerId)}
-  className="slider"
-/>
-
-
+            type="range"
+            id="threshold"
+            name="threshold"
+            min="40"
+            max="120"
+            value={settings.threshold}
+            onChange={handleChange}
+            onMouseUp={(e) => e.target.blur()}  // Remove focus when mouse interaction ends
+            onTouchEnd={(e) => e.target.blur()}  // Remove focus when touch interaction ends
+            className="slider"
+          />
           <div className="range-labels">
             <span>40 dB (Quiet)</span>
             <span>120 dB (Loud)</span>
