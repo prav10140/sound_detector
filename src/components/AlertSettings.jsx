@@ -41,21 +41,24 @@ function AlertSettings() {
             />
             Enable Alerts
           </label>
-          <p className="form-help">Receive alerts when sound levels exceed threshold</p>
+          <p className="form-help">
+            Receive alerts when sound levels exceed threshold
+          </p>
         </div>
 
         <div className="form-group">
-          <label htmlFor="threshold">Sound Threshold (dB): {settings.threshold}</label>
+          <label htmlFor="threshold">
+            Sound Threshold (dB): {settings.threshold}
+          </label>
+          {/* Replacing the slider with a number input */}
           <input
-            type="range"
+            type="number"
             id="threshold"
             name="threshold"
             min="40"
             max="120"
             value={settings.threshold}
             onChange={handleChange}
-            onMouseUp={(e) => e.target.blur()}  // Remove focus when mouse interaction ends
-            onTouchEnd={(e) => e.target.blur()}  // Remove focus when touch interaction ends
             className="slider"
           />
           <div className="range-labels">
@@ -78,7 +81,9 @@ function AlertSettings() {
             value={settings.duration}
             onChange={handleChange}
           />
-          <p className="form-help">Sound must exceed threshold for this duration to trigger an alert</p>
+          <p className="form-help">
+            Sound must exceed threshold for this duration to trigger an alert
+          </p>
         </div>
 
         <div className="form-group">
@@ -92,7 +97,9 @@ function AlertSettings() {
             value={settings.cooldown}
             onChange={handleChange}
           />
-          <p className="form-help">Minimum time between consecutive alerts</p>
+          <p className="form-help">
+            Minimum time between consecutive alerts
+          </p>
         </div>
 
         <button type="submit" className="submit-btn">
@@ -104,4 +111,4 @@ function AlertSettings() {
 }
 
 export default AlertSettings
-
+    
