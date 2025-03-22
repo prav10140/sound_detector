@@ -42,15 +42,18 @@ function AlertSettings() {
         <div className="form-group">
           <label htmlFor="threshold">Sound Threshold (dB): {settings.threshold}</label>
           <input
-            type="range"
-            id="threshold"
-            name="threshold"
-            min="40"
-            max="120"
-            value={settings.threshold}
-            onChange={handleChange}
-            className="slider"
-          />
+  type="range"
+  id="threshold"
+  name="threshold"
+  min="40"
+  max="120"
+  value={settings.threshold}
+  onChange={handleChange}
+  onMouseUp={() => document.activeElement.blur()} // Fix for stuck focus issue
+  onTouchEnd={() => document.activeElement.blur()} // Fix for mobile touch issue
+  className="slider"
+/>
+
           <div className="range-labels">
             <span>40 dB (Quiet)</span>
             <span>120 dB (Loud)</span>
