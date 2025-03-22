@@ -49,10 +49,11 @@ function AlertSettings() {
   max="120"
   value={settings.threshold}
   onChange={handleChange}
-  onMouseUp={() => document.activeElement.blur()} // Fix for stuck focus issue
-  onTouchEnd={() => document.activeElement.blur()} // Fix for mobile touch issue
+  onMouseUp={(e) => e.currentTarget.releasePointerCapture?.(e.pointerId)}
+  onTouchEnd={(e) => e.currentTarget.releasePointerCapture?.(e.pointerId)}
   className="slider"
 />
+
 
           <div className="range-labels">
             <span>40 dB (Quiet)</span>
