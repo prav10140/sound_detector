@@ -26,7 +26,7 @@ function AlertSettings() {
   }
 
   return (
-    <div>
+    <div style={{ backgroundColor: "#fff", padding: "20px", borderRadius: "8px" }}>
       <h2>Alert Settings</h2>
       <p>Configure when to receive sound level alerts</p>
 
@@ -41,16 +41,12 @@ function AlertSettings() {
             />
             Enable Alerts
           </label>
-          <p className="form-help">
-            Receive alerts when sound levels exceed threshold
-          </p>
+          <p className="form-help">Receive alerts when sound levels exceed threshold</p>
         </div>
 
         <div className="form-group">
-          <label htmlFor="threshold">
-            Sound Threshold (dB): {settings.threshold}
-          </label>
-          {/* Replacing the slider with a number input */}
+          <label htmlFor="threshold">Sound Threshold (dB): {settings.threshold}</label>
+          {/* Changed from a slider input to a number input without the "slider" class */}
           <input
             type="number"
             id="threshold"
@@ -59,7 +55,6 @@ function AlertSettings() {
             max="120"
             value={settings.threshold}
             onChange={handleChange}
-            className="slider"
           />
           <div className="range-labels">
             <span>40 dB (Quiet)</span>
@@ -81,9 +76,7 @@ function AlertSettings() {
             value={settings.duration}
             onChange={handleChange}
           />
-          <p className="form-help">
-            Sound must exceed threshold for this duration to trigger an alert
-          </p>
+          <p className="form-help">Sound must exceed threshold for this duration to trigger an alert</p>
         </div>
 
         <div className="form-group">
@@ -97,9 +90,7 @@ function AlertSettings() {
             value={settings.cooldown}
             onChange={handleChange}
           />
-          <p className="form-help">
-            Minimum time between consecutive alerts
-          </p>
+          <p className="form-help">Minimum time between consecutive alerts</p>
         </div>
 
         <button type="submit" className="submit-btn">
@@ -111,4 +102,3 @@ function AlertSettings() {
 }
 
 export default AlertSettings
-    
