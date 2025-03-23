@@ -11,38 +11,47 @@ function App() {
   const [currentLevel, setCurrentLevel] = useState(0)
   const [activeTab, setActiveTab] = useState("dashboard")
 
-  // Simulate fetching initial data
-  useEffect(() => {
-    // In a real app, this would be an API call to your backend
-    const mockData = Array.from({ length: 20 }, (_, i) => ({
-      id: i,
-      level: 40 + Math.random() * 50,
-      timestamp: Date.now() - (20 - i) * 60000,
-    }))
+  // Function to send sound data to backend
+  const sendSoundData = async (level) => {
+    try {
+      const response = await fetch("https://sound-detector-backend.vercel.app/api/sound-data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ level, deviceId: "frontend-simulator" }),
+      });
 
-    setSoundData(mockData)
-    if (mockData.length > 0) {
-      setCurrentLevel(mockData[mockData.length - 1].level)
+      const data = await response.json();
+      console.log("Data sent:", data);
+    } catch (error) {
+      console.error("Error sending sound data:", error);
     }
+  };
 
-    // Simulate real-time updates
+  // Simulate real-time sound level updates
+  useEffect(() => {
     const interval = setInterval(() => {
       const newReading = {
         id: Date.now(),
-        level: 40 + Math.random() * 50,
+        level: 40 + Math.random() * 60, // Random level between 40-100 dB
         timestamp: Date.now(),
       }
 
       setSoundData((prevData) => {
-        // Keep only the last 20 readings
         const updatedData = [...prevData, newReading].slice(-20)
         setCurrentLevel(newReading.level)
-        return updatedData
-      })
-    }, 2000)
 
-    return () => clearInterval(interval)
-  }, [])
+        // If sound level > 85 dB, send data to backend
+        if (newReading.level > 85) {
+          console.log(`🚨 High Sound Level Detected: ${newReading.level} dB`);
+          sendSoundData(newReading.level);
+        }
+
+        return updatedData;
+      })
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="app-container">
@@ -109,5 +118,5 @@ function App() {
   )
 }
 
-export default App
+export default App;
 
