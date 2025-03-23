@@ -5,7 +5,6 @@ import "./App.css"
 import SoundGauge from "./components/SoundGauge"
 import SoundChart from "./components/SoundChart"
 import AlertSettings from "./components/AlertSettings"
-
 function App() {
   const [soundData, setSoundData] = useState([])
   const [currentLevel, setCurrentLevel] = useState(0)
