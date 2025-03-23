@@ -11,47 +11,37 @@ function App() {
   const [currentLevel, setCurrentLevel] = useState(0)
   const [activeTab, setActiveTab] = useState("dashboard")
 
-  // Function to send sound data to backend
-  const sendSoundData = async (level) => {
-    try {
-      const response = await fetch("https://sound-detector-backend.vercel.app/api/sound-data", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ level, deviceId: "frontend-simulator" }),
-      });
-
-      const data = await response.json();
-      console.log("Data sent:", data);
-    } catch (error) {
-      console.error("Error sending sound data:", error);
-    }
-  };
-
-  // Simulate real-time sound level updates
+  // Simulate fetching initial data
   useEffect(() => {
+    const mockData = Array.from({ length: 20 }, (_, i) => ({
+      id: i,
+      level: 40 + Math.random() * 50,
+      timestamp: Date.now() - (20 - i) * 60000,
+    }))
+
+    setSoundData(mockData.filter((data) => data !== undefined)) // Remove undefined values
+    if (mockData.length > 0) {
+      setCurrentLevel(mockData[mockData.length - 1].level)
+    }
+
+    // Simulate real-time updates
     const interval = setInterval(() => {
       const newReading = {
         id: Date.now(),
-        level: 40 + Math.random() * 60, // Random level between 40-100 dB
+        level: 40 + Math.random() * 50,
         timestamp: Date.now(),
       }
 
       setSoundData((prevData) => {
-        const updatedData = [...prevData, newReading].slice(-20)
+        const filteredData = prevData.filter((data) => data !== undefined) // Remove undefined values
+        const updatedData = [...filteredData, newReading].slice(-20)
         setCurrentLevel(newReading.level)
-
-        // If sound level > 85 dB, send data to backend
-        if (newReading.level > 85) {
-          console.log(`🚨 High Sound Level Detected: ${newReading.level} dB`);
-          sendSoundData(newReading.level);
-        }
-
-        return updatedData;
+        return updatedData
       })
-    }, 2000);
+    }, 2000)
 
-    return () => clearInterval(interval);
-  }, []);
+    return () => clearInterval(interval)
+  }, [])
 
   return (
     <div className="app-container">
@@ -118,5 +108,4 @@ function App() {
   )
 }
 
-export default App;
-
+export default App
