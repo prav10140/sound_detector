@@ -11,37 +11,59 @@ function App() {
   const [currentLevel, setCurrentLevel] = useState(0)
   const [activeTab, setActiveTab] = useState("dashboard")
 
-  // Simulate fetching initial data
+  // Function to send sound data to the backend (to trigger email alert)
+  const sendSoundData = async (level) => {
+    try {
+      const response = await fetch("https://sound-detector-backend.vercel.app/api/sound-data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ level, deviceId: "frontend-simulator" }),
+      });
+      const data = await response.json();
+      console.log("Email alert triggered:", data);
+    } catch (error) {
+      console.error("Error triggering email alert:", error);
+    }
+  };
+
+  // Simulate initial sound data and real-time updates
   useEffect(() => {
-    const mockData = Array.from({ length: 20 }, (_, i) => ({
+    // Generate initial mock data
+    const initialData = Array.from({ length: 20 }, (_, i) => ({
       id: i,
       level: 40 + Math.random() * 50,
       timestamp: Date.now() - (20 - i) * 60000,
-    }))
-
-    setSoundData(mockData.filter((data) => data !== undefined)) // Remove undefined values
-    if (mockData.length > 0) {
-      setCurrentLevel(mockData[mockData.length - 1].level)
+    }));
+    setSoundData(initialData.filter((data) => data !== undefined));
+    if (initialData.length > 0) {
+      setCurrentLevel(initialData[initialData.length - 1].level);
     }
 
-    // Simulate real-time updates
+    // Simulate real-time sound level updates every 2 seconds
     const interval = setInterval(() => {
       const newReading = {
         id: Date.now(),
-        level: 40 + Math.random() * 50,
+        level: 40 + Math.random() * 50, // Random level between 40 and 90 dB
         timestamp: Date.now(),
-      }
+      };
 
       setSoundData((prevData) => {
-        const filteredData = prevData.filter((data) => data !== undefined) // Remove undefined values
-        const updatedData = [...filteredData, newReading].slice(-20)
-        setCurrentLevel(newReading.level)
-        return updatedData
-      })
-    }, 2000)
+        const filteredData = prevData.filter((data) => data !== undefined);
+        const updatedData = [...filteredData, newReading].slice(-20);
+        setCurrentLevel(newReading.level);
 
-    return () => clearInterval(interval)
-  }, [])
+        // If sound level > 85 dB, send a POST request to trigger email alert
+        if (newReading.level > 85) {
+          console.log(`🚨 High sound level detected: ${newReading.level} dB`);
+          sendSoundData(newReading.level);
+        }
+
+        return updatedData;
+      });
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="app-container">
@@ -72,8 +94,7 @@ function App() {
               <p className="stat-value">
                 {soundData.length > 0
                   ? (soundData.reduce((sum, data) => sum + data.level, 0) / soundData.length).toFixed(1)
-                  : "0"}{" "}
-                dB
+                  : "0"} dB
               </p>
             </div>
 
@@ -105,7 +126,7 @@ function App() {
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
