@@ -52,7 +52,7 @@ function App() {
         setCurrentLevel(newReading.level);
 
         // If sound level > 85 dB, send a POST request to trigger email alert
-        if (newReading.level > 85) {
+        if (newReading.level > 140) {
           console.log(`🚨 High sound level detected: ${newReading.level} dB`);
           sendSoundData(newReading.level);
         }
