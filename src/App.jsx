@@ -13,7 +13,7 @@ function App() {
   // Function to send sound data to the backend (to trigger email alert)
   const sendSoundData = async (level) => {
     try {
-      const response = await fetch("", {
+      const response = await fetch("https://sound-detector-backend.vercel.app/api/sound-data", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ level, deviceId: "frontend-simulator" }),
