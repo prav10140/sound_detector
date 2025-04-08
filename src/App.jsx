@@ -5,12 +5,20 @@ import "./App.css"
 import SoundGauge from "./components/SoundGauge"
 import SoundChart from "./components/SoundChart"
 import AlertSettings from "./components/AlertSettings"
+
 function App() {
   const [soundData, setSoundData] = useState([])
   const [currentLevel, setCurrentLevel] = useState(0)
   const [activeTab, setActiveTab] = useState("dashboard")
+  const [settings, setSettings] = useState({
+    enabled: true,
+    threshold: 85,
+    duration: 5,
+    cooldown: 15,
+  })
+  const [lastAlertTime, setLastAlertTime] = useState(0)
+  const [aboveThresholdStart, setAboveThresholdStart] = useState(null)
 
-  // Function to send sound data to the backend (to trigger email alert)
   const sendSoundData = async (level) => {
     try {
       const response = await fetch("https://sound-detector-backend.vercel.app/api/sound-data", {
@@ -25,9 +33,7 @@ function App() {
     }
   };
 
-  // Simulate initial sound data and real-time updates
   useEffect(() => {
-    // Generate initial mock data
     const initialData = Array.from({ length: 20 }, (_, i) => ({
       id: i,
       level: 40 + Math.random() * 50,
@@ -38,11 +44,10 @@ function App() {
       setCurrentLevel(initialData[initialData.length - 1].level);
     }
 
-    // Simulate real-time sound level updates every 2 seconds
     const interval = setInterval(() => {
       const newReading = {
         id: Date.now(),
-        level: 40 + Math.random() * 50, // Random level between 40 and 90 dB
+        level: 40 + Math.random() * 50,
         timestamp: Date.now(),
       };
 
@@ -51,10 +56,21 @@ function App() {
         const updatedData = [...filteredData, newReading].slice(-20);
         setCurrentLevel(newReading.level);
 
-        // If sound level > 85 dB, send a POST request to trigger email alert
-        if (newReading.level > 85) {
-          console.log(`🚨 High sound level detected: ${newReading.level} dB`);
-          sendSoundData(newReading.level);
+        if (settings.enabled && newReading.level > settings.threshold) {
+          if (!aboveThresholdStart) {
+            setAboveThresholdStart(newReading.timestamp);
+          } else {
+            const duration = (newReading.timestamp - aboveThresholdStart) / 1000;
+            const timeSinceLastAlert = (newReading.timestamp - lastAlertTime) / 60000;
+
+            if (duration >= settings.duration && timeSinceLastAlert >= settings.cooldown) {
+              sendSoundData(newReading.level);
+              setLastAlertTime(newReading.timestamp);
+              setAboveThresholdStart(null);
+            }
+          }
+        } else {
+          setAboveThresholdStart(null);
         }
 
         return updatedData;
@@ -62,7 +78,7 @@ function App() {
     }, 2000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [settings, lastAlertTime, aboveThresholdStart]);
 
   return (
     <div className="app-container">
@@ -71,12 +87,8 @@ function App() {
       </header>
 
       <div className="tab-navigation">
-        <button className={activeTab === "dashboard" ? "active" : ""} onClick={() => setActiveTab("dashboard")}>
-          Dashboard
-        </button>
-        <button className={activeTab === "settings" ? "active" : ""} onClick={() => setActiveTab("settings")}>
-          Alert Settings
-        </button>
+        <button className={activeTab === "dashboard" ? "active" : ""} onClick={() => setActiveTab("dashboard")}>Dashboard</button>
+        <button className={activeTab === "settings" ? "active" : ""} onClick={() => setActiveTab("settings")}>Alert Settings</button>
       </div>
 
       {activeTab === "dashboard" && (
@@ -85,7 +97,7 @@ function App() {
             <div className="stat-card">
               <h3>Current Level</h3>
               <p className="stat-value">{currentLevel.toFixed(1)} dB</p>
-              <p className="stat-label">{currentLevel > 85 ? "⚠️ High" : "✓ Normal"}</p>
+              <p className="stat-label">{currentLevel > settings.threshold ? "⚠️ High" : "✓ Normal"}</p>
             </div>
 
             <div className="stat-card">
@@ -121,7 +133,7 @@ function App() {
 
       {activeTab === "settings" && (
         <div className="settings-container">
-          <AlertSettings />
+          <AlertSettings settings={settings} setSettings={setSettings} />
         </div>
       )}
     </div>
