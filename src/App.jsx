@@ -16,69 +16,27 @@ function App() {
     duration: 5,
     cooldown: 15,
   })
-  const [lastAlertTime, setLastAlertTime] = useState(0)
-  const [aboveThresholdStart, setAboveThresholdStart] = useState(null)
 
-  const sendSoundData = async (level) => {
+  const fetchSoundData = async () => {
     try {
-      const response = await fetch("https://sound-detector-backend.vercel.app/api/sound-data", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ level, deviceId: "frontend-simulator" }),
-      });
-      const data = await response.json();
-      console.log("Email alert triggered:", data);
+      const response = await fetch("https://sound-detector-backend.vercel.app/api/sound-data")
+      const data = await response.json()
+      if (Array.isArray(data) && data.length > 0) {
+        setSoundData(data)
+        setCurrentLevel(data[data.length - 1].level)
+      }
     } catch (error) {
-      console.error("Error triggering email alert:", error);
+      console.error("Error fetching sound data:", error)
     }
-  };
+  }
 
   useEffect(() => {
-    const initialData = Array.from({ length: 20 }, (_, i) => ({
-      id: i,
-      level: 40 + Math.random() * 50,
-      timestamp: Date.now() - (20 - i) * 60000,
-    }));
-    setSoundData(initialData.filter((data) => data !== undefined));
-    if (initialData.length > 0) {
-      setCurrentLevel(initialData[initialData.length - 1].level);
-    }
-
     const interval = setInterval(() => {
-      const newReading = {
-        id: Date.now(),
-        level: 40 + Math.random() * 50,
-        timestamp: Date.now(),
-      };
+      fetchSoundData()
+    }, 2000)
 
-      setSoundData((prevData) => {
-        const filteredData = prevData.filter((data) => data !== undefined);
-        const updatedData = [...filteredData, newReading].slice(-20);
-        setCurrentLevel(newReading.level);
-
-        if (settings.enabled && newReading.level > settings.threshold) {
-          if (!aboveThresholdStart) {
-            setAboveThresholdStart(newReading.timestamp);
-          } else {
-            const duration = (newReading.timestamp - aboveThresholdStart) / 1000;
-            const timeSinceLastAlert = (newReading.timestamp - lastAlertTime) / 60000;
-
-            if (duration >= settings.duration && timeSinceLastAlert >= settings.cooldown) {
-              sendSoundData(newReading.level);
-              setLastAlertTime(newReading.timestamp);
-              setAboveThresholdStart(null);
-            }
-          }
-        } else {
-          setAboveThresholdStart(null);
-        }
-
-        return updatedData;
-      });
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, [settings, lastAlertTime, aboveThresholdStart]);
+    return () => clearInterval(interval)
+  }, [])
 
   return (
     <div className="app-container">
@@ -137,7 +95,7 @@ function App() {
         </div>
       )}
     </div>
-  );
+  )
 }
 
 export default App;
