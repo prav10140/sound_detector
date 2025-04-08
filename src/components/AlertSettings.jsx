@@ -1,15 +1,6 @@
 "use client"
 
-import { useState } from "react"
-
-function AlertSettings() {
-  const [settings, setSettings] = useState({
-    enabled: true,
-    threshold: 85,
-    duration: 5,
-    cooldown: 15,
-  })
-
+function AlertSettings({ settings, setSettings }) {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
     setSettings({
@@ -20,7 +11,6 @@ function AlertSettings() {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    // In a real app, this would send the settings to your backend
     console.log("Saving settings:", settings)
     alert("Settings saved successfully!")
   }
@@ -46,7 +36,6 @@ function AlertSettings() {
 
         <div className="form-group">
           <label htmlFor="threshold">Sound Threshold (dB): {settings.threshold}</label>
-          {/* Changed from a slider input to a number input without the "slider" class */}
           <input
             type="number"
             id="threshold"
